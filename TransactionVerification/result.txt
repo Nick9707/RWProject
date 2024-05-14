@@ -1,0 +1,167 @@
+const { Network, Alchemy } = require("alchemy-sdk");
+let request = require('request');
+const apiKey = "alcht_KaTvCZ8Pn7qXAGlraHwC29y24XVYL3";
+
+const settings = {
+    apiKey: apiKey, // Replace with your Alchemy API Key.
+    network: Network.ETH_GOERLI, // Replace with your network.
+};
+
+const alchemy = new Alchemy(settings);
+
+async function getLatestBlockNumber(){
+    return await alchemy.core.getBlockNumber();
+}
+
+async function getBlock(blockNummber){
+    let blockNummberHex = "0x" + blockNummber.toString(16).padStart(2, '0x');
+    return new Promise(function(resolve, reject) {
+        return request.post("https://eth-goerli.g.alchemy.com/v2/" + apiKey,
+            { json: {"id": 1,
+                    "jsonrpc": "2.0",
+                    "method": "eth_getBlockByNumber",
+                    "params": [
+                        blockNummberHex,
+                        true
+                    ]}},
+            function (error, response, body) {
+                if (!error && response.statusCode === 200) {
+                   resolve(body.result);
+                } else {
+                    reject(blockNummberHex);
+                }
+            });
+    });
+}
+
+async function getTransaction(transactionHash){
+    return await alchemy.core.getTransaction(transactionHash);
+}
+
+async function validateAccount(accountNumber){
+    try {
+        await alchemy.core.send("eth_getProof", [
+            accountNumber,
+            [],
+            'latest'
+        ])
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
+async function getBalance(accountNumber){
+    return await alchemy.core.getBalance(accountNumber, "latest")
+}
+
+async function getAccountTransactionNumber(accountNumber) {
+    return await alchemy.core.getTransactionCount(accountNumber);
+}
+
+module.exports = {
+    getLatestBlockNumber,
+    getBlock,
+    getTransaction,
+    validateAccount,
+    getBalance,
+    getAccountTransactionNumber
+}
+const alchemyApi = require("./AlchemyAPI")
+
+async function blockApproval(blockNumber) {
+    let block = await alchemyApi.getBlock("0x9dfe39");
+    for (let i = 0; i < block.transactions.length; i++) {
+        try {
+            let transaction = block.transactions[i];
+            if (! await isAccountValid(transaction)) {
+                return false;
+            }
+            if (! await isAmountValid(transaction)) {
+                return false;
+            }
+            if (! await isNonceValid(transaction)) {
+                return false;
+            }
+        } catch (e) {
+            console.log("Error with transaction or account:");
+            console.log(transaction.hash);
+        }
+    }
+    return block;
+}
+
+async function isAccountValid(transaction) {
+    if (transaction.type === 1) {
+        if (! ( await alchemyApi.validateAccount(transaction.from) && await validateAccount(transaction.to)) ) {
+            console.log("error with transaction account:");
+            console.log(transaction.hash)
+            return false;
+        }
+    }
+    return true;
+}
+async function isAmountValid(transaction) {
+    try {
+        let balance = await alchemyApi.getBalance(transaction.from);
+        if (transaction.amount > balance) {
+            return false;
+        }
+    } catch (e) {
+        console.log("wrong amount");
+        console.log(transaction.hash);
+        console.log(transaction.from);
+        return false;
+    }
+    return true;
+}
+
+async function isNonceValid(transaction) {
+    try {
+        let nonce = await alchemyApi.getAccountTransactionNumber(transaction.from);
+        if (nonce < transaction.nonce) {
+            console.log("nonce error");
+            console.log(transaction.hash)
+            return false;
+        }
+    } catch (e) {
+        console.log("nonce error");
+        console.log(transaction.hash)
+        return false;
+    }
+    return true;
+}
+
+blockApproval(10354233);
+
+module.exports = {
+    blockApproval
+}
+const keccak256 = require('keccak256')
+const { MerkleTree } = require('merkletreejs');
+const AlchemyAPI = require('./AlchemyAPI');
+
+async function buildMerkleTree(block) {
+    //give a list of transactions has
+    const transactions = block.transactions.map(t => t.hash);
+    const leaves = transactions;
+    const tree = new MerkleTree(leaves, keccak256);
+    const root = tree.getRoot().toString('hex');
+    // if ( block.stateRoot === root ) {
+    return root;
+    // } else {
+    //     return block.stateRoot;
+    // }
+}
+
+async function a() {
+    let block = await AlchemyAPI.getBlock(10354233);
+    let transactions = block.transactions.map(t => t.hash);
+    await buildMerkleTree(transactions);
+}
+//da251f115d677347762256a0bbc098b019075879984aefff45d9b4eb42e74f7b
+// 98669788754841316848590328876098484119242743596215866921846548824
+a();
+async function getLatestBlockNumber(){
+    return 10000;
+}
