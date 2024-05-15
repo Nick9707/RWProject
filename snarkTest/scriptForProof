@@ -101,6 +101,7 @@ snarkjs zkey verify circuit.r1cs pot14_final.ptau circuit_0003.zkey
 We verify the zkey file we created in the previous step. Which means we check all the contributions to the second phase of the multi-party computation (MPC) up to that point.
 
 20. Apply a random beacon
+snarkjs zkey beacon circuit_0003.zkey circuit_final.zkey 0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 10 -n="Final Beacon phase2"
 The zkey beacon command creates a zkey file with a contribution applied in the form of a random beacon.
 We use it to apply a random beacon to the latest zkey after the final contribution has been made (this is necessary in order to generate a final zkey file and finalise phase 2 of the trusted setup).
 
@@ -120,6 +121,5 @@ snarkjs groth16 verify verification_key.json public.json proof.json
 25. Turn the verifier into a smart contract
 snarkjs zkey export solidityverifier circuit_final.zkey verifier.sol
 
-
-
-
+26. Simulate a verification call
+snarkjs zkey export soliditycalldata public.json proof.json

@@ -1,6 +1,7 @@
 const { Network, Alchemy } = require("alchemy-sdk");
+require('dotenv').config();
 let request = require('request');
-const apiKey =process.env.API_KEY;
+const apiKey = process.env.API_KEY;
 
 const settings = {
     apiKey: apiKey, // Replace with your Alchemy API Key.

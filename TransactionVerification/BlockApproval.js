@@ -2,6 +2,7 @@ const alchemyApi = require("./AlchemyAPI")
 
 async function blockApproval(blockNumber) {
     let block;
+
     try {
         block = await alchemyApi.getBlock(blockNumber.toString());
     } catch (e) {
@@ -69,11 +70,11 @@ async function isNonceValid(transaction) {
     return true;
 }
 
-alchemyApi.getLatestBlockNumber().then((res, err) => {
-    blockApproval(res).then((res, err) => {
-        console.log(res);
-    });
-})
+// alchemyApi.getLatestBlockNumber().then((res, err) => {
+//     blockApproval(res).then((res, err) => {
+//         console.log(res);
+//     });
+// })
 
 
 module.exports = {

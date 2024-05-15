@@ -11,11 +11,15 @@ async function buildMerkleTree(block) {
     return root;
 }
 
-async function a() {
-    let block = await AlchemyAPI.getBlock(5861808);
-    let res = await buildMerkleTree(block);
-    console.log(res);
+// async function a() {
+//     let block = await AlchemyAPI.getBlock(5861808);
+//     let res = await buildMerkleTree(block);
+//     console.log(res);
+// }
+
+module.exports = {
+    buildMerkleTree
 }
 //da251f115d677347762256a0bbc098b019075879984aefff45d9b4eb42e74f7b
 // 98669788754841316848590328876098484119242743596215866921846548824
-a();
+// a();
