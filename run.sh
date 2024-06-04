@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Proving circuit is a set of arithmetical operations that is performed on input data, to prove the knowledge of it without reviling. 
+# In this case, we calculate the root of Merkle tree and use it as the input data for the prover. So we are proving that we know the state
+# root that is the result of verifying transactions that are part of the block and using their has for the tree
 node ./TransactionVerification/Verifier.js
 if [ "$1" = "-g" ];
 then
