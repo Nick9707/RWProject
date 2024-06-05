@@ -1,8 +1,13 @@
 #!/bin/sh
 
 # In the context of zkSNARKs, a "circuit" refers to a specific computation that is represented in a formalized way using logical gates,
-#similar to how a digital circuit is represented using gates like AND, OR, and NOT. The circuit defines the behavior of the computation
-#that we want to prove knowledge of without revealing any secrets.
+# similar to how a digital circuit is represented using gates like AND, OR, and NOT. The circuit defines the behavior of the computation
+# that we want to prove knowledge of without revealing any secrets.
+
+# A trusted ceremony is a process in which a group of trusted individuals or entities collaboratively generate
+# the initial parameters for a zkSNARK system in a secure and controlled environment. 
+# The parameters generated ("Secret") in the trusted ceremony are used to create the proving key and verification key,
+# which are used for generating and verifying proofs in zkSNARKs.
 node ./TransactionVerification/Verifier.js
 if [ "$1" = "-g" ];
 then
@@ -20,6 +25,14 @@ then
   snarkjs r1cs info circuit.r1cs
   snarkjs r1cs print circuit.r1cs circuit.sym
   snarkjs r1cs export json circuit.r1cs circuit.r1cs.json
+  
+  # The prove algorithm is responsible for generating the zero-knowledge proof. It takes as inputs the proving key (“pk”), 
+  # the private witness “w” and a public value “x” to generate the proof.
+
+  # Witness "w" is the secret you as a prover know and not reveal it to the verifier and public value "x" is used to verify the proof(π) 
+  # generated with the witness.
+  # proof = Prove(pk,x,w)
+
   node ./circuit_js/generate_witness.js ./circuit_js/circuit.wasm input.json witness.wtns
   snarkjs wtns check circuit.r1cs witness.wtns
   snarkjs groth16 setup circuit.r1cs pot14_final.ptau circuit_0000.zkey
@@ -36,6 +49,12 @@ then
   snarkjs groth16 verify verification_key.json public.json proof.json
   snarkjs zkey export solidityverifier circuit_final.zkey ./contracts/verifier.sol
   snarkjs zkey export soliditycalldata public.json proof.json > ./contractInput.json
+
+  # The verify algorithm takes in the proof, the public value "x" and the verification key(vk) and return true or false.
+  # V(vk, x, π) = true
+  # If the equation is true, then the proof is valid, and the verifier is convinced that the prover possesses the knowledge of
+  # the secret witness "w" without revealing it.
+  
   npx hardhat compile
   npx hardhat run deployments/deploy.js --network sepolia
 else
