@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# Proving circuit is a set of arithmetical operations that is performed on input data, to prove the knowledge of it without reviling. 
-# In this case, we calculate the root of Merkle tree and use it as the input data for the prover. So we are proving that we know the state
-# root that is the result of verifying transactions that are part of the block and using their has for the tree
+# In the context of zkSNARKs, a "circuit" refers to a specific computation that is represented in a formalized way using logical gates,
+#similar to how a digital circuit is represented using gates like AND, OR, and NOT. The circuit defines the behavior of the computation
+#that we want to prove knowledge of without revealing any secrets.
 node ./TransactionVerification/Verifier.js
 if [ "$1" = "-g" ];
 then
