@@ -11,6 +11,16 @@
 node ./TransactionVerification/Verifier.js
 if [ "$1" = "-g" ];
 then
+  # Trusted setup is a process used in some zero knowledge proof systems to generate the initial proving and verifying keys
+  # required for generating and verifying proofs. The purpose of trusted setup is to establish a secure foundation for the
+  # system by generating these keys in a way that ensures they are unpredictable and unbiased. 
+  # This is typically done by having a group of trusted individuals generate the keys together, with each individual contributing 
+  # a piece of random data. Once all the pieces are combined and processed using cryptographic techniques, 
+  # the resulting keys can be used to generate and verify proofs without the need for any additional trust assumptions. 
+  # The goal of trusted setup is to ensure that the system is secure and trustworthy, even if some of the participants 
+  # in the trusted setup process are malicious.
+
+  # The file generated during trusted setup process is called a ptau file(powers of tau).
   snarkjs powersoftau new bn128 14 pot14_0000.ptau -v
   snarkjs powersoftau contribute pot14_0000.ptau pot14_0001.ptau --name="First contribution" -v -e="someText"
   snarkjs powersoftau contribute pot14_0001.ptau pot14_0002.ptau --name="Second contribution" -v -e="some random text"
@@ -35,6 +45,11 @@ then
 
   node ./circuit_js/generate_witness.js ./circuit_js/circuit.wasm input.json witness.wtns
   snarkjs wtns check circuit.r1cs witness.wtns
+
+  # Groth16 is a type of zk-SNARK (Zero-Knowledge Succinct Non-Interactive Argument of Knowledge) proof system used for generating and verifying proofs of computation. 
+  # It is named after its creator, Jens Groth.
+
+  # circuit_0000.zkey is a binary file that contains the proving and verification keys
   snarkjs groth16 setup circuit.r1cs pot14_final.ptau circuit_0000.zkey
   snarkjs zkey contribute circuit_0000.zkey circuit_0001.zkey --name="1st Contributor Name" -v -e="someText"
   snarkjs zkey contribute circuit_0001.zkey circuit_0002.zkey --name="Second contribution Name" -v -e="Another random entropy"
